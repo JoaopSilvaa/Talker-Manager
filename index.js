@@ -1,3 +1,4 @@
+const talkerJson = 'talker.json';
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -23,13 +24,13 @@ app.get('/', (_request, response) => {
 });
 
 app.get('/talker', (_req, res) => {
-  const talker = JSON.parse(fs.readFileSync('talker.json', 'utf-8'));
+  const talker = JSON.parse(fs.readFileSync(talkerJson, 'utf-8'));
   if (talker === []) return res.status(HTTP_OK_STATUS).json([]);
   res.status(HTTP_OK_STATUS).json(talker);
 });
 
 app.get('/talker/:id', (req, res) => {
-  const talker = JSON.parse(fs.readFileSync('talker.json', 'utf-8'));
+  const talker = JSON.parse(fs.readFileSync(talkerJson, 'utf-8'));
   const { id } = req.params;
   const talkerById = talker.find((talkerId) => talkerId.id === Number(id));
   if (!talkerById) return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
@@ -49,7 +50,7 @@ validateToken,
   validateRate,
   validateWatchedAt,
   (req, res) => {
-    const talker = JSON.parse(fs.readFileSync('talker.json', 'utf-8'));
+    const talker = JSON.parse(fs.readFileSync(talkerJson, 'utf-8'));
     const { name, age, talk } = req.body;
     const id = talker.length + 1;
     talker.push({ id, name, age, talk }); 
@@ -65,13 +66,24 @@ app.put('/talker/:id',
   validateWatchedAt,
   validateRate,
   (req, res) => {
-  const talker = JSON.parse(fs.readFileSync('talker.json', 'utf-8'));
+  const talker = JSON.parse(fs.readFileSync(talkerJson, 'utf-8'));
   const { id } = req.params;
   const { name, age, talk } = req.body;
   const searchTalkerIndex = talker.findIndex((t) => t.id === Number(id));
   talker[searchTalkerIndex] = { ...talker[searchTalkerIndex], name, age, talk };
   fs.writeFileSync('./talker.json', JSON.stringify(talker));
   res.status(200).json(talker[searchTalkerIndex]);
+});
+
+app.delete('/talker/:id',
+  validateToken,
+  (req, res) => {
+  const talker = JSON.parse(fs.readFileSync(talkerJson, 'utf-8'));
+  const { id } = req.params;
+  const searchTalkerIndex = talker.findIndex((t) => t.id === Number(id));
+  talker.splice(searchTalkerIndex, 1);
+  fs.writeFileSync('./talker.json', JSON.stringify(talker));
+  res.status(204).end();
 });
 
 app.listen(PORT, () => {
