@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const geraToken = require('./loginMiddleware');
 
 const talker = JSON.parse(fs.readFileSync('talker.json', 'utf-8'));
 
@@ -25,6 +26,11 @@ app.get('/talker/:id', (req, res) => {
   const talkerById = talker.find((talkerId) => talkerId.id === Number(id));
   if (!talkerById) return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
   res.status(HTTP_OK_STATUS).json(talkerById);
+});
+
+app.post('/login', (_req, res) => {
+  const token = geraToken();
+  res.status(HTTP_OK_STATUS).json({ token });
 });
 
 app.listen(PORT, () => {
