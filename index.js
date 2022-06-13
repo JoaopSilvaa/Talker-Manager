@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const geraToken = require('./loginMiddleware');
+const { geraToken, validateEmail, validatePassword } = require('./loginMiddleware');
 
 const talker = JSON.parse(fs.readFileSync('talker.json', 'utf-8'));
 
@@ -28,7 +28,7 @@ app.get('/talker/:id', (req, res) => {
   res.status(HTTP_OK_STATUS).json(talkerById);
 });
 
-app.post('/login', (_req, res) => {
+app.post('/login', validateEmail, validatePassword, (_req, res) => {
   const token = geraToken();
   res.status(HTTP_OK_STATUS).json({ token });
 });
